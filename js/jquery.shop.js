@@ -7,31 +7,34 @@
 	$.Shop.prototype = {
 		init: function() {
 		
-			this.cartPrefix = "winery-";
-			this.cartName = this.cartPrefix + "cart";
-			this.shippingRates = this.cartPrefix + "shipping-rates";
-			this.total = this.cartPrefix + "total";
-			this.storage = sessionStorage;
+		    // Properties
+		
+			this.cartPrefix = "winery-"; // Prefix string to be prepended to the cart's name in the session storage
+			this.cartName = this.cartPrefix + "cart"; // Cart name in the session storage
+			this.shippingRates = this.cartPrefix + "shipping-rates"; // Shipping rates key in the session storage
+			this.total = this.cartPrefix + "total"; // Total key in the session storage
+			this.storage = sessionStorage; // shortcut to the sessionStorage object
 			
 			
-			this.$formAddToCart = this.$element.find( "form.add-to-cart" );
-			this.$formCart = this.$element.find( "#shopping-cart" );
-			this.$checkoutCart = this.$element.find( "#checkout-cart" );
-			this.$checkoutOrderForm = this.$element.find( "#checkout-order-form" );
-			this.$shipping = this.$element.find( "#sshipping" );
-			this.$subTotal = this.$element.find( "#stotal" );
-			this.$shoppingCartActions = this.$element.find( "#shopping-cart-actions" );
-			this.$updateCartBtn = this.$shoppingCartActions.find( "#update-cart" );
-			this.$emptyCartBtn = this.$shoppingCartActions.find( "#empty-cart" );
-			this.$userDetails = this.$element.find( "#user-details-content" );
-			this.$paypalForm = this.$element.find( "#paypal-form" );
+			this.$formAddToCart = this.$element.find( "form.add-to-cart" ); // Forms for adding items to the cart
+			this.$formCart = this.$element.find( "#shopping-cart" ); // Shopping cart form
+			this.$checkoutCart = this.$element.find( "#checkout-cart" ); // Checkout form cart
+			this.$checkoutOrderForm = this.$element.find( "#checkout-order-form" ); // Checkout user details form
+			this.$shipping = this.$element.find( "#sshipping" ); // Element that displays the shipping rates
+			this.$subTotal = this.$element.find( "#stotal" ); // Element that displays the subtotal charges
+			this.$shoppingCartActions = this.$element.find( "#shopping-cart-actions" ); // Cart actions links
+			this.$updateCartBtn = this.$shoppingCartActions.find( "#update-cart" ); // Update cart button
+			this.$emptyCartBtn = this.$shoppingCartActions.find( "#empty-cart" ); // Empty cart button
+			this.$userDetails = this.$element.find( "#user-details-content" ); // Element that displays the user information
+			this.$paypalForm = this.$element.find( "#paypal-form" ); // PayPal form
 			
 			
-			this.currency = "&euro;";
-			this.paypalCurrency = "EUR";
-			this.paypalBusinessEmail = "yourbusiness@email.com";
-			this.paypalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+			this.currency = "&euro;"; // HTML entity of the currency to be displayed in the layout
+			this.paypalCurrency = "EUR"; // PayPal's currency code
+			this.paypalBusinessEmail = "yourbusiness@email.com"; // Your Business PayPal's account email address
+			this.paypalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr"; // The URL of the PayPal's form
 			
+			// Object containing patterns for form validation
 			this.requiredFields = {
 				expression: {
 					value: /^([\w-\.]+)@((?:[\w]+\.)+)([a-z]){2,4}$/
@@ -42,6 +45,8 @@
 				}
 				
 			};
+			
+			// Method invocation
 			
 			this.createCart();
 			this.handleAddToCartForm();
@@ -55,6 +60,10 @@
 			
 		},
 		
+		// Public methods
+		
+		// Creates the cart keys in the session storage
+		
 		createCart: function() {
 			if( this.storage.getItem( this.cartName ) == null ) {
 			
@@ -66,6 +75,8 @@
 				this.storage.setItem( this.total, "0" );
 			}
 		},
+		
+		// Appends the required hidden values to the PayPal's form before submitting
 		
 		populatePayPalForm: function() {
 			var self = this;
@@ -105,6 +116,8 @@
 				
 			}
 		},
+		
+		// Displays the user's information
 		
 		displayUserDetails: function() {
 			if( this.$userDetails.length ) {
@@ -171,6 +184,8 @@
 			}
 		},
 		
+		// Displays the shopping cart
+		
 		displayCart: function() {
 			if( this.$formCart.length ) {
 				var cart = this._toJSONObject( this.storage.getItem( this.cartName ) );
@@ -216,6 +231,9 @@
 			}
 		},
 		
+		// Empties the cart by calling the _emptyCart() method
+		// @see $.Shop._emptyCart()
+		
 		emptyCart: function() {
 			var self = this;
 			if( self.$emptyCartBtn.length ) {
@@ -224,6 +242,8 @@
 				});
 			}
 		},
+		
+		// Updates the cart
 		
 		updateCart: function() {
 			var self = this;
@@ -266,6 +286,8 @@
 		  }
 		},
 		
+		// Adds items to the shopping cart
+		
 		handleAddToCartForm: function() {
 			var self = this;
 			self.$formAddToCart.each(function() {
@@ -295,6 +317,8 @@
 			});
 		},
 		
+		// Handles the checkout form by adding a validation routine and saving user's info into the session storage
+		
 		handleCheckoutOrderForm: function() {
 			var self = this;
 			if( self.$checkoutOrderForm.length ) {
@@ -321,19 +345,45 @@
 			}
 		},
 		
+		// Private methods
+		
+		
+		// Empties the session storage
+		
 		_emptyCart: function() {
 			this.storage.clear();
 		},
+		
+		/* Format a number by decimal places
+		 * @param num Number the number to be formatted
+		 * @param places Number the decimal places
+		 * @returns n Number the formatted number
+		 */
+		 
+		 
 		
 		_formatNumber: function( num, places ) {
 			var n = num.toFixed( places );
 			return n;
 		},
+		
+		/* Extract the numeric portion from a string
+		 * @param element Object the jQuery element that contains the relevant string
+		 * @returns price String the numeric string
+		 */
+		
+		
 		_extractPrice: function( element ) {
 			var text = element.text();
 			var price = text.replace( "€", "" ).replace( " ", "" );
 			return price;
 		},
+		
+		/* Converts a numeric string into a number
+		 * @param numStr String the numeric string to be converted
+		 * @returns n Number the number
+		 */
+		
 		_convertString: function( numStr ) {
 			var n = Number( numStr );
 			if( !isNaN( n ) ) {
@@ -343,18 +393,45 @@
 				return;
 			}
 		},
+		
+		/* Converts a number to a string
+		 * @param n Number the number to be converted
+		 * @returns str String the string returned
+		 */
+		
 		_convertNumber: function( n ) {
 			var str = n.toString();
 			return str;
 		},
+		
+		/* Converts a JSON string to a JavaScript object
+		 * @param str String the JSON string
+		 * @returns obj Object the JavaScript object
+		 */
+		
 		_toJSONObject: function( str ) {
 			var obj = JSON.parse( str );
 			return obj;
 		},
+		
+		/* Converts a JavaScript object to a JSON string
+		 * @param obj Object the JavaScript object
+		 * @returns str String the JSON string
+		 */
+		
+		
 		_toJSONString: function( obj ) {
 			var str = JSON.stringify( obj );
 			return str;
 		},
+		
+		
+		/* Add an object to the cart as a JSON string
+		 * @param values Object the object to be added to the cart
+		 * @returns void
+		 */
+		
+		
 		_addToCart: function( values ) {
 			var cart = this.storage.getItem( this.cartName );
 			
@@ -365,6 +442,12 @@
 			
 			this.storage.setItem( this.cartName, this._toJSONString( cartCopy ) );
 		},
+		
+		/* Custom shipping rates calculation based on the total quantity of items in the cart
+		 * @param qty Number the total quantity of items
+		 * @returns shipping Number the shipping rates
+		 */
+		
 		_calculateShipping: function( qty ) {
 			var shipping = 0;
 			if( qty >= 6 ) {
@@ -385,6 +468,13 @@
 			return shipping;
 		
 		},
+		
+		/* Validates the checkout form
+		 * @param form Object the jQuery element of the checkout form
+		 * @returns valid Boolean true for success, false for failure
+		 */
+		 
+		 
 		
 		_validateForm: function( form ) {
 			var self = this;
@@ -423,6 +513,12 @@
 			return valid;
 		
 		},
+		
+		/* Save the data entered by the user in the ckeckout form
+		 * @param form Object the jQuery element of the checkout form
+		 * @returns void
+		 */
+		
 		
 		_saveFormData: function( form ) {
 			var self = this;
