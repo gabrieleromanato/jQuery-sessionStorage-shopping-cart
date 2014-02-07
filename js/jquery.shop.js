@@ -30,6 +30,7 @@
 			
 			
 			this.currency = "&euro;"; // HTML entity of the currency to be displayed in the layout
+			this.currencyString = "€"; // Currency symbol as textual string
 			this.paypalCurrency = "EUR"; // PayPal's currency code
 			this.paypalBusinessEmail = "yourbusiness@email.com"; // Your Business PayPal's account email address
 			this.paypalURL = "https://www.sandbox.paypal.com/cgi-bin/webscr"; // The URL of the PayPal's form
@@ -374,23 +375,32 @@
 		
 		
 		_extractPrice: function( element ) {
+			var self = this;
 			var text = element.text();
-			var price = text.replace( "€", "" ).replace( " ", "" );
+			var price = text.replace( self.currencyString, "" ).replace( " ", "" );
 			return price;
 		},
 		
 		/* Converts a numeric string into a number
 		 * @param numStr String the numeric string to be converted
-		 * @returns n Number the number
+		 * @returns num Number the number
 		 */
 		
 		_convertString: function( numStr ) {
-			var n = Number( numStr );
-			if( !isNaN( n ) ) {
-				return n;
+			var num;
+			if( /^[-+]?[0-9]+\.[0-9]+$/.test( numStr ) ) {
+				num = parseFloat( numStr );
+			} else if( /^\d+$/.test( numStr ) ) {
+				num = parseInt( numStr );
 			} else {
-				console.warn( n + " is not a number" );
-				return;
+				num = Number( numStr );
+			}
+			
+			if( !isNaN( num ) ) {
+				return num;
+			} else {
+				console.warn( numStr + " cannot be converted into a number" );
+				return false;
 			}
 		},
 		
