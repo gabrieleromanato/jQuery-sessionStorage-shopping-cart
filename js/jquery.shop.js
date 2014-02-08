@@ -293,10 +293,9 @@
 			var self = this;
 			self.$formAddToCart.each(function() {
 				var $form = $( this );
-				var $productPrice = $form.prev();
-				var $productName = $productPrice.prev();
-				var price = self._convertString( self._extractPrice( $productPrice ) );
-				var name =  $.trim( $productName.text() );
+				var $product = $form.parent();
+				var price = self._convertString( $product.data( "price" ) );
+				var name =  $product.data( "name" );
 				
 				$form.on( "submit", function() {
 					var qty = self._convertString( $form.find( ".qty" ).val() );
