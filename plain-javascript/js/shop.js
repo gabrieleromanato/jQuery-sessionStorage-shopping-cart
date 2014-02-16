@@ -637,6 +637,5 @@
 		var shop = new Shop( "#site" );
 	});
 	
-	window.shop = new Shop( "#site" );
 
 })();
