@@ -379,7 +379,7 @@
 			if( /^[-+]?[0-9]+\.[0-9]+$/.test( numStr ) ) {
 				num = parseFloat( numStr );
 			} else if( /^\d+$/.test( numStr ) ) {
-				num = parseInt( numStr );
+				num = parseInt( numStr, 10 );
 			} else {
 				num = Number( numStr );
 			}
@@ -637,5 +637,6 @@
 		var shop = new Shop( "#site" );
 	});
 	
+	window.shop = new Shop( "#site" );
 
 })();
