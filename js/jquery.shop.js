@@ -55,6 +55,7 @@
 			this.emptyCart();
 			this.updateCart();
 			this.displayCart();
+			this.deleteProduct();
 			this.displayUserDetails();
 			this.populatePayPalForm();
 			
@@ -184,6 +185,53 @@
 				}
 			}
 		},
+
+		// Delete a product from the shopping cart
+
+		deleteProduct: function() {
+			var self = this;
+			if( self.$formCart.length ) {
+				var cart = this._toJSONObject( this.storage.getItem( this.cartName ) );
+				var items = cart.items;
+
+				$( document ).on( "click", ".pdelete a", function( e ) {
+					e.preventDefault();
+					var productName = $( this ).data( "product" );
+					var newItems = [];
+					for( var i = 0; i < items.length; ++i ) {
+						var item = items[i];
+						var product = item.product;	
+						if( product == productName ) {
+							items.splice( i, 1 );
+						}
+					}
+					newItems = items;
+					var updatedCart = {};
+					updatedCart.items = newItems;
+
+					var updatedTotal = 0;
+					var totalQty = 0;
+					if( newItems.length == 0 ) {
+						updatedTotal = 0;
+						totalQty = 0;
+					} else {
+						for( var j = 0; j < newItems.length; ++j ) {
+							var prod = newItems[j];
+							var sub = prod.price * prod.qty;
+							updatedTotal += sub;
+							totalQty += prod.qty;
+						}
+					}
+
+					self.storage.setItem( self.total, self._convertNumber( updatedTotal ) );
+					self.storage.setItem( self.shippingRates, self._convertNumber( self._calculateShipping( totalQty ) ) );
+
+					self.storage.setItem( self.cartName, self._toJSONString( updatedCart ) );
+					$( this ).parents( "tr" ).remove();
+					self.$subTotal[0].innerHTML = self.currency + " " + self.storage.getItem( self.total );
+				});
+			}
+		},
 		
 		// Displays the shopping cart
 		
@@ -193,41 +241,64 @@
 				var items = cart.items;
 				var $tableCart = this.$formCart.find( ".shopping-cart" );
 				var $tableCartBody = $tableCart.find( "tbody" );
+
+				if( items.length == 0 ) {
+					$tableCartBody.html( "" );	
+				} else {
 				
 				
-				for( var i = 0; i < items.length; ++i ) {
-					var item = items[i];
-					var product = item.product;
-					var price = this.currency + " " + item.price;
-					var qty = item.qty;
-					var html = "<tr><td class='pname'>" + product + "</td>" + "<td class='pqty'><input type='text' value='" + qty + "' class='qty'/></td>" + "<td class='pprice'>" + price + "</td></tr>";
+					for( var i = 0; i < items.length; ++i ) {
+						var item = items[i];
+						var product = item.product;
+						var price = this.currency + " " + item.price;
+						var qty = item.qty;
+						var html = "<tr><td class='pname'>" + product + "</td>" + "<td class='pqty'><input type='text' value='" + qty + "' class='qty'/></td>";
+					    	html += "<td class='pprice'>" + price + "</td><td class='pdelete'><a href='' data-product='" + product + "'>&times;</a></td></tr>";
 					
-					$tableCartBody.html( $tableCartBody.html() + html );
+						$tableCartBody.html( $tableCartBody.html() + html );
+					}
+
 				}
+
+				if( items.length == 0 ) {
+					this.$subTotal[0].innerHTML = this.currency + " " + 0.00;
+				} else {	
 				
-				var total = this.storage.getItem( this.total );
-				this.$subTotal[0].innerHTML = this.currency + " " + total;
+					var total = this.storage.getItem( this.total );
+					this.$subTotal[0].innerHTML = this.currency + " " + total;
+				}
 			} else if( this.$checkoutCart.length ) {
 				var checkoutCart = this._toJSONObject( this.storage.getItem( this.cartName ) );
 				var cartItems = checkoutCart.items;
 				var $cartBody = this.$checkoutCart.find( "tbody" );
+
+				if( cartItems.length > 0 ) {
 				
-				for( var j = 0; j < cartItems.length; ++j ) {
-					var cartItem = cartItems[j];
-					var cartProduct = cartItem.product;
-					var cartPrice = this.currency + " " + cartItem.price;
-					var cartQty = cartItem.qty;
-					var cartHTML = "<tr><td class='pname'>" + cartProduct + "</td>" + "<td class='pqty'>" + cartQty + "</td>" + "<td class='pprice'>" + cartPrice + "</td></tr>";
+					for( var j = 0; j < cartItems.length; ++j ) {
+						var cartItem = cartItems[j];
+						var cartProduct = cartItem.product;
+						var cartPrice = this.currency + " " + cartItem.price;
+						var cartQty = cartItem.qty;
+						var cartHTML = "<tr><td class='pname'>" + cartProduct + "</td>" + "<td class='pqty'>" + cartQty + "</td>" + "<td class='pprice'>" + cartPrice + "</td></tr>";
 					
-					$cartBody.html( $cartBody.html() + cartHTML );
+						$cartBody.html( $cartBody.html() + cartHTML );
+					}
+				} else {
+					$cartBody.html( "" );	
 				}
+
+				if( cartItems.length > 0 ) {
 				
-				var cartTotal = this.storage.getItem( this.total );
-				var cartShipping = this.storage.getItem( this.shippingRates );
-				var subTot = this._convertString( cartTotal ) + this._convertString( cartShipping );
+					var cartTotal = this.storage.getItem( this.total );
+					var cartShipping = this.storage.getItem( this.shippingRates );
+					var subTot = this._convertString( cartTotal ) + this._convertString( cartShipping );
 				
-				this.$subTotal[0].innerHTML = this.currency + " " + this._convertNumber( subTot );
-				this.$shipping[0].innerHTML = this.currency + " " + cartShipping;
+					this.$subTotal[0].innerHTML = this.currency + " " + this._convertNumber( subTot );
+					this.$shipping[0].innerHTML = this.currency + " " + cartShipping;
+				} else {
+					this.$subTotal[0].innerHTML = this.currency + " " + 0.00;
+					this.$shipping[0].innerHTML = this.currency + " " + 0.00;	
+				}
 			
 			}
 		},
