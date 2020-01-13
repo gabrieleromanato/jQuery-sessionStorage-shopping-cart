@@ -12,3 +12,6 @@ Bear in mind that there are a few things you need to change on the main `jquery.
 * The way shipping charges are calculated.
 
 Hope you find this useful.
+
+## Demo
+[https://jquery-sessionstorage-cart.herokuapp.com/](https://jquery-sessionstorage-cart.herokuapp.com/)
