@@ -14,4 +14,4 @@ Bear in mind that there are a few things you need to change on the main `jquery.
 Hope you find this useful.
 
 ## Demo
-[https://jquery-sessionstorage-cart.herokuapp.com/](https://jquery-sessionstorage-cart.herokuapp.com/)
+[https://jquerycart.gabrieleromanato.dev/](https://jquerycart.gabrieleromanato.dev/)
